@@ -1,1 +1,3 @@
 node_modules
+appKeys.txt
+client/dist/bundle.js
