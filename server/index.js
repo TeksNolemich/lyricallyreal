@@ -1,7 +1,9 @@
 var express = require('express');
 var app = express();
+var calls = require('./controllers/apiCalls.js');
+
 const port = 2979;
 app.use(express.static(__dirname + '/../client/dist'));
-// app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/search', calls.getSong);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

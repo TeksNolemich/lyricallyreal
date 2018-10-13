@@ -13,8 +13,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.4",
     "genius-api": "^0.4.1",
+    "node-fetch": "^2.2.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
   },
