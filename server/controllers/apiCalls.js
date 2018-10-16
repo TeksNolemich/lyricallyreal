@@ -24,10 +24,11 @@ let lyricSelector = (req, res) => {
         }
       }
       if (something === null) {
-        console.log(' in the if');
+        // console.log(' in the if');
         res.status(200).send('There are no lyrics to grab');
       } else {
         parse.getSongLyrics(something.url).then(result => {
+          // console.log(result, ' the results');
           res.status(200).send(result.lyrics);
         });
       }

@@ -3,6 +3,7 @@ import axios from 'axios';
 import SongInfo from './SongInfo.jsx';
 import Lyrics from './Lyrics.jsx';
 import SpotifyWebApi from 'spotify-web-api-js';
+import key from '../../../appKeys.js';
 const spotifyApi = new SpotifyWebApi();
 
 class App extends React.Component {
@@ -15,10 +16,19 @@ class App extends React.Component {
     }
     this.state = {
       toked: token ? true : false,
-      songShit: { artist: '', song: '', albumArt: '', lyrics: '' },
+      songShit: {
+        artist: '',
+        song: '',
+        albumArt: '',
+        lyrics: '',
+      },
+      playing: true,
     };
     this.getCurrentSong.bind(this);
     this.pullLyrics.bind(this);
+    this.playerCheck.bind(this);
+    this.playerCheckInterval = null;
+    this.playAndPause.bind(this);
   }
   //spotify provided hashing function
   getHashParams() {
@@ -35,6 +45,7 @@ class App extends React.Component {
   }
 
   getCurrentSong() {
+    this.playerCheckInterval = setInterval(() => this.playerCheck(), 1000);
     spotifyApi.getMyCurrentPlaybackState().then(response => {
       this.setState({
         songShit: {
@@ -48,6 +59,7 @@ class App extends React.Component {
 
   pullLyrics() {
     const context = this;
+    context.setState({ lyrics: 'We Out Hurr Searchin' });
     axios
       .get('/search', {
         params: {
@@ -56,6 +68,7 @@ class App extends React.Component {
         },
       })
       .then(response => {
+        console.log(response, ' in the get request');
         context.setState({ lyrics: response.data });
       })
       .catch(err => {
@@ -63,24 +76,109 @@ class App extends React.Component {
       });
   }
 
+  playerCheck() {
+    const token = key.webPlayerToken;
+
+    if (window.Spotify !== null) {
+      clearInterval(this.playerCheckInterval);
+      this.player = new window.Spotify.Player({
+        name: "Arthur's Personal Player",
+        getOAuthToken: cb => {
+          cb(token);
+        },
+      });
+      this.createEventHandlers();
+
+      // finally, connect!
+      this.player.connect();
+    }
+  }
+
+  createEventHandlers() {
+    this.player.on('initialization_error', e => {
+      console.error(e);
+    });
+    this.player.on('authentication_error', e => {
+      console.error(e);
+      this.setState({ loggedIn: false });
+    });
+    this.player.on('account_error', e => {
+      console.error(e);
+    });
+    this.player.on('playback_error', e => {
+      console.error(e);
+    });
+
+    // Playback status updates
+    this.player.on('player_state_changed', state => {
+      console.log(state);
+    });
+
+    // Ready
+    this.player.on('ready', data => {
+      let { device_id } = data;
+      console.log('Let the music play on!');
+      this.setState({ deviceId: device_id });
+    });
+  }
+
+  playAndPause() {
+    const context = this;
+    if (this.state.playing) {
+      spotifyApi
+        .pause()
+        .then()
+        .catch(err => console.log(err, ' caught in the error'));
+      this.setState({ playing: !this.state.playing });
+      console.log(this.state, ' switch true and false');
+    } else {
+      this.setState({ playing: !this.state.playing });
+      spotifyApi.play().then(console.log(' the song should be playing'));
+    }
+  }
+
   render() {
     return (
       <div className="container">
-        <a href="http://localhost:8888"> Login to Spotify </a>
+        <div className="d-flex justify-content-end">
+          <a href="http://localhost:8888">Login to Spotify </a>
+        </div>
         <br />
         <div className="row">
           <div className="col-sm">
             {this.state.toked && (
-              <button onClick={() => this.getCurrentSong()}>
+              <button
+                onClick={() => this.getCurrentSong()}
+                className="btn btn-primary btn-lg"
+              >
                 Whatchu Listening to?
               </button>
             )}
             <br />
-            <SongInfo songShit={this.state.songShit} />
+            <SongInfo
+              songShit={this.state.songShit}
+              playAndPause={this.playAndPause.bind(this)}
+            />
           </div>
           <div className="col-sm">
             {this.state.toked && (
-              <button onClick={() => this.pullLyrics()}>Lyrically Hurr</button>
+              <button
+                onClick={() => this.playerCheck()}
+                className="btn btn-primary btn-lg"
+              >
+                {' '}
+                Make Browser Available
+              </button>
+            )}
+          </div>
+          <div className="col-sm">
+            {this.state.toked && (
+              <button
+                onClick={() => this.pullLyrics()}
+                className="btn btn-primary btn-lg"
+              >
+                Lyrically Hurr
+              </button>
             )}
             <Lyrics lyrics={this.state.lyrics} />
           </div>

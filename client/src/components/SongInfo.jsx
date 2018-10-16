@@ -12,7 +12,13 @@ const SongInfo = props => {
       <div>{props.songShit.artist}</div>
       <div>{props.songShit.song}</div>
       {props.songShit.albumArt.length > 0 ? (
-        <img src={props.songShit.albumArt} alt="New" style={pStyle} />
+        <img
+          src={props.songShit.albumArt}
+          alt="AlbumArt"
+          style={pStyle}
+          onClick={props.playAndPause}
+          className="img-thumbnail"
+        />
       ) : (
         <div />
       )}
