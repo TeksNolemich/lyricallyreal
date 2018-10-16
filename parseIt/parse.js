@@ -4,13 +4,12 @@ var fetch = require('node-fetch');
 function parseSongHTML(htmlText) {
   const $ = cheerio.load(htmlText);
   const lyrics = $('.song_body-lyrics').text();
-  console.log(lyrics, '<- the lyrics');
   return {
     lyrics,
   };
 }
-const tester = 'https://genius.com/Damian-marley-welcome-to-jamrock-lyrics';
-function getSongLyrics(geniusUrl) {
+// const tester = 'https://genius.com/Damian-marley-welcome-to-jamrock-lyrics';
+exports.getSongLyrics = geniusUrl => {
   return fetch(geniusUrl, {
     method: 'GET',
   })
@@ -19,5 +18,4 @@ function getSongLyrics(geniusUrl) {
       throw new Error('Could not get song url ...');
     })
     .then(parseSongHTML);
-}
-getSongLyrics(tester);
+};

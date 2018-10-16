@@ -1,32 +1,51 @@
 var api = require('genius-api');
 var token = require('../../appKeys.js');
+var parse = require('../../parseIt/parse.js');
 var genius = new api(token.clientAccessToken);
 
-let getSong = (req, res) => {
-  let somthing;
+let lyricSelector = (req, res) => {
+  console.log(req.query, ' the rrequest');
+  ({ artist, song } = { artist: req.query.artist, song: req.query.song });
+  let something = null;
   genius
-    .search('Welcome to jamrock')
+    .search(song)
     .then(function(response) {
+      const artistNameFix = artist => {
+        return artist.replace(/\./g, '').toLowerCase();
+      };
       for (var i = 0; i < response.hits.length; i++) {
-        if (response.hits[i].result.primary_artist.name === 'Damian Marley') {
+        // console.log(response.hits[i], ' a matched song');
+        if (
+          artistNameFix(response.hits[i].result.primary_artist.name) ===
+          artistNameFix(artist)
+        ) {
           something = response.hits[i].result;
           break;
         }
       }
-      console.log(something);
-      res.status(200).send(something.url);
+      if (something === null) {
+        console.log(' in the if');
+        res.status(200).send('There are no lyrics to grab');
+      } else {
+        parse.getSongLyrics(something.url).then(result => {
+          res.status(200).send(result.lyrics);
+        });
+      }
     })
     .catch(function(error) {
-      res.status(500).send(error);
+      res.status(500).send(error, ' this was the error');
     });
 };
 
-module.exports.getSong = getSong;
-// genius
-//   .songsByArtist(1132, {
-//     per_page: 10,
-//     sort: 'popularity',
-//   })
-//   .then(function(songs) {
-//     console.log(songs);
+// let getSongs = (req, res) => {
+//   let search = req.query;
+//   spotify.search({ type: 'track', query: search, limit: 20 }, (err, data) => {
+//     if (err) {
+//       return console.log('Error occurred: ' + err);
+//     }
+//     console.log(data);
+//     res.status(201).send(data);
 //   });
+// };
+
+module.exports.lyricSelector = lyricSelector;
