@@ -1,10 +1,10 @@
 var api = require('genius-api');
 var token = require('../../appKeys.js');
 var parse = require('../../parseIt/parse.js');
+var request = require('request');
 var genius = new api(token.clientAccessToken);
 
 let lyricSelector = (req, res) => {
-  console.log(req.query, ' the rrequest');
   ({ artist, song } = { artist: req.query.artist, song: req.query.song });
   let something = null;
   genius
@@ -14,7 +14,6 @@ let lyricSelector = (req, res) => {
         return artist.replace(/\./g, '').toLowerCase();
       };
       for (var i = 0; i < response.hits.length; i++) {
-        // console.log(response.hits[i], ' a matched song');
         if (
           artistNameFix(response.hits[i].result.primary_artist.name) ===
           artistNameFix(artist)
@@ -24,11 +23,9 @@ let lyricSelector = (req, res) => {
         }
       }
       if (something === null) {
-        // console.log(' in the if');
         res.status(200).send('There are no lyrics to grab');
       } else {
         parse.getSongLyrics(something.url).then(result => {
-          // console.log(result, ' the results');
           res.status(200).send(result.lyrics);
         });
       }
@@ -38,15 +35,36 @@ let lyricSelector = (req, res) => {
     });
 };
 
-// let getSongs = (req, res) => {
-//   let search = req.query;
-//   spotify.search({ type: 'track', query: search, limit: 20 }, (err, data) => {
-//     if (err) {
-//       return console.log('Error occurred: ' + err);
-//     }
-//     console.log(data);
-//     res.status(201).send(data);
-//   });
-// };
+// app.get('/refresh_token', function(req, res) {
+let refreshToken = (req, res) => {
+  // requesting access token from refresh token
+  var refresh_token = req.query.refresh;
+  var authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: {
+      Authorization:
+        'Basic ' +
+        new Buffer(token.spottyClient + ':' + token.spottySecret).toString(
+          'base64',
+        ),
+    },
+    form: {
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token,
+    },
+    json: true,
+  };
+
+  request.post(authOptions, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      console.log(response, ' the response, and the body => ', body);
+      var access_token = body.access_token;
+      res.send({
+        access_token: access_token,
+      });
+    }
+  });
+};
 
 module.exports.lyricSelector = lyricSelector;
+module.exports.refreshToken = refreshToken;

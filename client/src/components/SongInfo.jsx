@@ -6,7 +6,6 @@ const pStyle = {
 };
 
 const SongInfo = props => {
-  // return <div>{nl2br(props.lyrics)}</div>;
   return (
     <div>
       <div>{props.songShit.artist}</div>

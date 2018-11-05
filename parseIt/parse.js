@@ -8,7 +8,7 @@ function parseSongHTML(htmlText) {
     lyrics,
   };
 }
-// const tester = 'https://genius.com/Damian-marley-welcome-to-jamrock-lyrics';
+
 exports.getSongLyrics = geniusUrl => {
   return fetch(geniusUrl, {
     method: 'GET',

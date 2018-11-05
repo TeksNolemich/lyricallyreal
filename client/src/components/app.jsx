@@ -29,6 +29,7 @@ class App extends React.Component {
     this.playerCheck.bind(this);
     this.playerCheckInterval = null;
     this.playAndPause.bind(this);
+    this.tokenRefresh.bind(this);
   }
   //spotify provided hashing function
   getHashParams() {
@@ -78,13 +79,12 @@ class App extends React.Component {
 
   playerCheck() {
     const token = key.webPlayerToken;
-
     if (window.Spotify !== null) {
       clearInterval(this.playerCheckInterval);
       this.player = new window.Spotify.Player({
         name: "Arthur's Personal Player",
         getOAuthToken: cb => {
-          cb(token);
+          cb(key.clientAccessToken);
         },
       });
       this.createEventHandlers();
@@ -117,7 +117,7 @@ class App extends React.Component {
     // Ready
     this.player.on('ready', data => {
       let { device_id } = data;
-      console.log('Let the music play on!');
+      console.log('Let the music play on!, device_id');
       this.setState({ deviceId: device_id });
     });
   }
@@ -130,15 +130,28 @@ class App extends React.Component {
         .then()
         .catch(err => console.log(err, ' caught in the error'));
       this.setState({ playing: !this.state.playing });
-      console.log(this.state, ' switch true and false');
     } else {
       this.setState({ playing: !this.state.playing });
       spotifyApi.play().then(console.log(' the song should be playing'));
     }
   }
 
+  tokenRefresh() {
+    console.log(' lciked');
+    axios.get('/refresh_token', {
+      params: {
+        refresh:
+          'AQCbo1SAN2imSCZ7VyFhd3eoUWK0f2F1FLyvyiLKxLDdwECDWj3j2NbPqhEySsYgzinhB7v4nOe9XbJlvuXzsmxY67xCpNYi7yqAjkTBqKHdGXPw4zS_5vVrZlHHRwnUMBtsCQ',
+      },
+    });
+  }
   render() {
     return (
+      // (
+      //   <button className="btn btn-primary btn-sm" onClick={this.tokenRefresh}>
+      //     refresh token
+      //   </button>
+      // );
       <div className="container">
         <div className="d-flex justify-content-end">
           <a href="http://localhost:8888">Login to Spotify </a>
@@ -180,6 +193,7 @@ class App extends React.Component {
                 Lyrically Hurr
               </button>
             )}
+
             <Lyrics lyrics={this.state.lyrics} />
           </div>
         </div>
