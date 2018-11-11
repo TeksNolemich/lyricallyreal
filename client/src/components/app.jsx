@@ -84,7 +84,7 @@ class App extends React.Component {
       this.player = new window.Spotify.Player({
         name: "Arthur's Personal Player",
         getOAuthToken: cb => {
-          cb(key.clientAccessToken);
+          cb();
         },
       });
       this.createEventHandlers();
@@ -140,18 +140,12 @@ class App extends React.Component {
     console.log(' lciked');
     axios.get('/refresh_token', {
       params: {
-        refresh:
-          'AQCbo1SAN2imSCZ7VyFhd3eoUWK0f2F1FLyvyiLKxLDdwECDWj3j2NbPqhEySsYgzinhB7v4nOe9XbJlvuXzsmxY67xCpNYi7yqAjkTBqKHdGXPw4zS_5vVrZlHHRwnUMBtsCQ',
+        refresh: key.spottyRefreshToken,
       },
     });
   }
   render() {
     return (
-      // (
-      //   <button className="btn btn-primary btn-sm" onClick={this.tokenRefresh}>
-      //     refresh token
-      //   </button>
-      // );
       <div className="container">
         <div className="d-flex justify-content-end">
           <a href="http://localhost:8888">Login to Spotify </a>
