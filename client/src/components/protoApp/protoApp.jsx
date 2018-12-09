@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Search, Grid, Header, Segment } from 'semantic-ui-react';
+import Lyrics from './Lyrics.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -8,18 +8,19 @@ class App extends React.Component {
     this.state = {
       artistName: '',
       songName: '',
+      lyrics: '',
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange(event) {
-    console.log(event.target, ' the event');
     this.setState({ [event.target.name]: event.target.value });
   }
 
   handleSubmit(event) {
     event.preventDefault();
+    const context = this;
     axios
       .get('/search', {
         params: {
@@ -28,8 +29,13 @@ class App extends React.Component {
         },
       })
       .then(response => {
-        console.log(' this the is the response');
-        console.log(response.data);
+        // console.log(' this the is the response');
+        // console.log(response.data);
+        let wordsToSong = response.data;
+        if (wordsToSong.length > 30) {
+          wordsToSong = wordsToSong.slice(35);
+        }
+        context.setState({ lyrics: wordsToSong });
       });
     // console.log(this.state.artistName, this.state.songName);
   }
@@ -57,6 +63,8 @@ class App extends React.Component {
         <button type="Submit" onClick={this.handleSubmit}>
           Hit IT
         </button>
+
+        <Lyrics lyrics={this.state.lyrics} />
       </div>
     );
   }
