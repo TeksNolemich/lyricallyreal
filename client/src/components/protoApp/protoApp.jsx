@@ -20,7 +20,18 @@ class App extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    console.log(this.state.artistName, this.state.songName);
+    axios
+      .get('/search', {
+        params: {
+          artist: this.state.artistName,
+          song: this.state.songName,
+        },
+      })
+      .then(response => {
+        console.log(' this the is the response');
+        console.log(response.data);
+      });
+    // console.log(this.state.artistName, this.state.songName);
   }
 
   render() {
