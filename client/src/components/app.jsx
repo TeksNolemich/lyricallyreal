@@ -136,14 +136,6 @@ class App extends React.Component {
     }
   }
 
-  tokenRefresh() {
-    console.log(' lciked');
-    axios.get('/refresh_token', {
-      params: {
-        refresh: key.spottyRefreshToken,
-      },
-    });
-  }
   render() {
     return (
       <div className="container">

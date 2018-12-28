@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import Lyrics from './Lyrics.jsx';
+import SpotifyWebApi from 'spotify-web-api-js';
+const spotifyApi = new SpotifyWebApi();
 
 class App extends React.Component {
   constructor(props) {
@@ -13,7 +15,19 @@ class App extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-
+  //spotify provided hashing function
+  getHashParams() {
+    var hashParams = {};
+    var e,
+      r = /([^&;=]+)=?([^&;]*)/g,
+      q = window.location.hash.substring(1);
+    e = r.exec(q);
+    while (e) {
+      hashParams[e[1]] = decodeURIComponent(e[2]);
+      e = r.exec(q);
+    }
+    return hashParams;
+  }
   handleChange(event) {
     this.setState({ [event.target.name]: event.target.value });
   }

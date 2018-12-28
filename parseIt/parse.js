@@ -3,7 +3,7 @@ var fetch = require('node-fetch');
 
 function parseSongHTML(htmlText) {
   const $ = cheerio.load(htmlText);
-  const lyrics = $('.song_body-lyrics').text();
+  const lyrics = $('.lyrics').text();
   return {
     lyrics,
   };
